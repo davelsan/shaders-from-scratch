@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "noEmit": true,
+    "target": "ESNext",
+
+    // type checking
+    "allowJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "useDefineForClassFields": true,
+
+    // modules
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+
+    // paths
+    "baseUrl": ".",
+    "paths": {
+      "@helpers/*": ["./src/helpers/*"],
+      "@shaders/*": ["./src/shaders/*"],
+      "@scenes/*": ["./src/scenes/*"],
+      "@styles/*": ["./src/styles/*"],
+    }
+  }
+}

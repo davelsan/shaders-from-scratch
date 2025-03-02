@@ -93,6 +93,11 @@ export function atomWithBinding(store: Store, folderParams?: FolderParams) {
       };
     };
 
-    return bindingAtom;
+    return {
+      atom: bindingAtom,
+      sub: (listener: (value: T) => void) => {
+        return store.sub(bindingAtom, () => listener(store.get(bindingAtom)));
+      },
+    };
   };
 }

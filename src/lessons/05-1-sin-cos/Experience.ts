@@ -69,7 +69,7 @@ export class Experience extends WebGLView {
   };
 
   private setupSubscriptions = () => {
-    this.subToAtom(this._state.timeAtom, this.updateTime);
+    this.subToAtom(this._state.time.atom, this.updateTime);
   };
 
   private updateTime = ({ elapsed }: TimeAtomValue) => {

@@ -8,26 +8,16 @@ export type Store = ReturnType<typeof JotaiCreateStore>;
 export function createThreeState() {
   const store = JotaiCreateStore();
 
-  const [
-    threeAtom, // camera, controls, renderer, scene, stage
-    vpAtom, // viewport
-    timeAtom, // time
-  ] = atomWithThree('#root', store);
+  const {
+    three, // camera, controls, renderer, scene, stage
+    viewport, // viewport
+    time, // time
+  } = atomWithThree('#root', store);
 
   return {
     store,
-    threeAtom,
-    timeAtom,
-    vpAtom,
-    //
-    get three() {
-      return store.get(threeAtom);
-    },
-    get vp() {
-      return store.get(vpAtom);
-    },
-    get time() {
-      return store.get(timeAtom);
-    },
+    three,
+    viewport,
+    time,
   };
 }

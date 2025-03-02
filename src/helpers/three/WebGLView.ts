@@ -79,8 +79,8 @@ export abstract class WebGLView<T extends object = object> extends Group {
     this.namespace = namespace;
     this.props = Object.assign({ needsLoadingScreen: true }, props);
 
-    this._vpAtom = state.vpAtom;
-    this._timeAtom = state.timeAtom;
+    this._vpAtom = state.viewport.atom;
+    this._timeAtom = state.time.atom;
 
     const { camera, controls, renderer, scene } = state.three;
     this._camera = camera;
@@ -89,7 +89,7 @@ export abstract class WebGLView<T extends object = object> extends Group {
     this._scene = scene;
     this._state = state;
 
-    state.store.sub(state.threeAtom, () => {});
+    state.store.sub(state.three.atom, () => {});
   }
 
   /**

@@ -44,11 +44,8 @@ export class Experience extends WebGLView {
   }
 
   private setupAssets = async () => {
-    const sunset = assets.cubeTexturesFamily('sunset');
-    this.texture = await this._state.store.get(sunset);
-
-    const suzanne = assets.gltfsFamily('suzanne');
-    this.model = await this._state.store.get(suzanne);
+    this.texture = await assets.cubeTextures.get('sunset');
+    this.model = await assets.gltfs.get('suzanne');
   };
 
   private setupScene = () => {
@@ -88,8 +85,8 @@ export class Experience extends WebGLView {
   };
 
   private setupSubscriptions = () => {
-    this.subToAtom(ambientBinding, this.updateAmbient);
-    this.subToAtom(hemiBinding, this.updateHemisphere);
+    this.subToAtom(ambientBinding.atom, this.updateAmbient);
+    this.subToAtom(hemiBinding.atom, this.updateHemisphere);
   };
 
   private updateAmbient = (value: boolean) => {

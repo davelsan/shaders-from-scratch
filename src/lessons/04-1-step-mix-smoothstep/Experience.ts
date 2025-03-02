@@ -43,9 +43,7 @@ export class Experience extends WebGLView {
   }
 
   private setupAssets = async () => {
-    const plantsAtom = assets.texturesFamily('plants');
-    const plants = await this._state.store.get(plantsAtom);
-    this.texture = plants;
+    this.texture = await assets.textures.get('plants');
   };
 
   private setupGeometry = () => {
@@ -68,7 +66,7 @@ export class Experience extends WebGLView {
   };
 
   private setupSubscriptions = () => {
-    this.subToAtom(shaderAtom, this.updateShader);
+    this.subToAtom(shaderAtom.atom, this.updateShader);
   };
 
   private updateShader = (shader: string) => {

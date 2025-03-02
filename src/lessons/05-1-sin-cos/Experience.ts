@@ -45,8 +45,7 @@ export class Experience extends WebGLView {
   }
 
   private setupAssets = async () => {
-    const dog = assets.texturesFamily('dog');
-    this.texture = await this._state.store.get(dog);
+    this.texture = await assets.textures.get('dog');
   };
 
   private setupGeometry = () => {

@@ -49,7 +49,7 @@ export class Experience extends WebGLView {
 
   private setupMaterial = async () => {
     const { height, width } = this._state.store.get(this._vpAtom);
-    const fn = this._state.store.get(fnBinding);
+    const fn = this._state.store.get(fnBinding.atom);
 
     this.material = new ShaderMaterial({
       vertexShader: vertexShader,
@@ -68,8 +68,8 @@ export class Experience extends WebGLView {
   };
 
   private setupSubscriptions = () => {
-    this.subToAtom(fnBinding, this.updateFunction);
-    this.subToAtom(modFnValueBinding, this.updateModFnValue);
+    this.subToAtom(fnBinding.atom, this.updateFunction);
+    this.subToAtom(modFnValueBinding.atom, this.updateModFnValue);
     this.subToAtom(this._vpAtom, this.updateResolution);
   };
 

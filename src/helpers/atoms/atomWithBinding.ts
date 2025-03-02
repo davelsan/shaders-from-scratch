@@ -95,6 +95,7 @@ export function atomWithBinding(store: Store, folderParams?: FolderParams) {
 
     return {
       atom: bindingAtom,
+      get: () => store.get(bindingAtom),
       sub: (listener: (value: T) => void) => {
         return store.sub(bindingAtom, () => listener(store.get(bindingAtom)));
       },

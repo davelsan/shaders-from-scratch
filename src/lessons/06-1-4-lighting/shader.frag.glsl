@@ -1,21 +1,24 @@
 uniform bool uAmbient;
 uniform float uAmbientIntensity;
 
+uniform bool uFresnel;
+uniform float uFresnelFalloff;
+
 uniform bool uHemisphere;
 uniform float uHemisphereIntensity;
 
 uniform bool uLambert;
 uniform float uLambertIntensity;
 
-uniform bool uSpecPhong;
-uniform float uSpecPhongIntensity;
+uniform vec3 uModelColor;
+
+uniform bool uSpecEnabled;
+uniform int uSpecType;
+uniform float uSpecIntensity;
 
 uniform samplerCube uSpecMap;
 uniform bool uSpecMapEnabled;
 uniform float uSpecMapIntensity;
-
-uniform bool uFresnel;
-uniform float uFresnelFalloff;
 
 varying vec3 vNormal;
 varying vec3 vPosition;
@@ -24,7 +27,6 @@ varying vec3 vPosition;
 #pragma glslify: linearTosRGB = require('../../shared/linear_to_srgb.glsl');
 
 void main() {
-  vec3 baseColor = vec3(0.0);
   vec3 lighting = vec3(0.0);
 
   // Normalize to make sure interpolated normals are of length = 1
@@ -59,15 +61,24 @@ void main() {
 
     lighting = lighting + lambert * uLambertIntensity;
 
-    // Phong (specular highlight)
-    if (uSpecPhong == true) {
-      vec3 r = normalize(reflect(-lambertDirection, normal));
-      float specularDot = max(0.0, dot(r, viewDirection));
-      float specularValue = pow(specularDot, uSpecPhongIntensity);
-      specular = vec3(specularValue);
+    // Specular (highlight)
+    if (uSpecEnabled == true) {
+      if (uSpecType == 0) {
+        // Phong
+        vec3 r = normalize(reflect(-lambertDirection, normal));
+        float specularDot = max(0.0, dot(r, viewDirection));
+        float specularValue = pow(specularDot, uSpecIntensity);
+        specular = vec3(specularValue);
+      } else if (uSpecType == 1) {
+        // Blinn–Phong
+        vec3 halfDir = normalize(lambertDirection + viewDirection);
+        float angle = max(0.0, dot(halfDir, normal));
+        specular = vec3(pow(angle, uSpecIntensity));
+      }
     }
 
-    // IBL (specular reflection)
+
+    // IBL specular (reflection)
     if (uSpecMapEnabled == true) {
       vec3 iblCoord = normalize(reflect(-viewDirection, normal));
       vec3 iblSample = textureCube(uSpecMap, iblCoord).rgb;
@@ -82,7 +93,7 @@ void main() {
     }
   }
 
-  vec3 color = baseColor * lighting + specular;
+  vec3 color = uModelColor * lighting + specular;
 
   // Convert to SRGB color space
   color = linearTosRGB(color);

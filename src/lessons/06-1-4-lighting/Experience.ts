@@ -1,4 +1,5 @@
 import {
+  Color,
   type CubeTexture,
   IcosahedronGeometry,
   Mesh,
@@ -27,26 +28,30 @@ import {
   lambertBinding,
   lambertIntensityBinding,
   modelBinding,
+  modelColorBinding,
+  specEnabledBinding,
+  specIntensityBinding,
   specMapBinding,
   specMapIntensityBinding,
-  specPhongBinding,
-  specPhongIntensityBinding,
+  specTypeBinding,
 } from './State';
 
 type Uniforms = {
   uAmbient: boolean;
   uAmbientIntensity: number;
+  uFresnel: boolean;
+  uFresnelFalloff: number;
   uHemisphere: boolean;
   uHemisphereIntensity: number;
   uLambert: boolean;
   uLambertIntensity: number;
-  uSpecPhong: boolean;
-  uSpecPhongIntensity: number;
+  uModelColor: Color;
+  uSpecEnabled: boolean;
+  uSpecType: 0 | 1;
+  uSpecIntensity: number;
   uSpecMap: CubeTexture;
   uSpecMapEnabled: boolean;
   uSpecMapIntensity: number;
-  uFresnel: boolean;
-  uFresnelFalloff: number;
   //
   uResolution: Vector2;
 };
@@ -106,17 +111,19 @@ export class Experience extends WebGLView {
         //
         uAmbient: ambientBinding.get(),
         uAmbientIntensity: ambientIntensityBinding.get(),
+        uFresnel: fresnelBinding.get(),
+        uFresnelFalloff: fresnelFalloffBinding.get(),
         uHemisphere: hemiBinding.get(),
         uHemisphereIntensity: hemiIntensityBinding.get(),
         uLambert: lambertBinding.get(),
         uLambertIntensity: lambertIntensityBinding.get(),
-        uSpecPhong: specPhongBinding.get(),
-        uSpecPhongIntensity: specPhongIntensityBinding.get(),
+        uModelColor: new Color(modelColorBinding.get()),
+        uSpecEnabled: specEnabledBinding.get(),
+        uSpecType: specTypeBinding.get(),
+        uSpecIntensity: specIntensityBinding.get(),
         uSpecMap: this.texture,
         uSpecMapEnabled: specMapBinding.get(),
         uSpecMapIntensity: specMapIntensityBinding.get(),
-        uFresnel: fresnelBinding.get(),
-        uFresnelFalloff: fresnelFalloffBinding.get(),
       },
     });
   };
@@ -141,23 +148,23 @@ export class Experience extends WebGLView {
     this.subToAtom(ambientBinding.atom, this.updateAmbient);
     this.subToAtom(ambientIntensityBinding.atom, this.updateAmbientIntensity);
 
+    this.subToAtom(fresnelBinding.atom, this.toggleFresnel);
+    this.subToAtom(fresnelFalloffBinding.atom, this.updateFresnelFalloff);
+
     this.subToAtom(hemiBinding.atom, this.updateHemisphere);
     this.subToAtom(hemiIntensityBinding.atom, this.updateHemisphereIntensity);
 
     this.subToAtom(lambertBinding.atom, this.updateLambert);
     this.subToAtom(lambertIntensityBinding.atom, this.updateLambertIntensity);
 
-    this.subToAtom(specPhongBinding.atom, this.updateSpecPhong);
-    this.subToAtom(
-      specPhongIntensityBinding.atom,
-      this.updateSpecPhongIntensity
-    );
+    this.subToAtom(modelColorBinding.atom, this.updateModelColor);
+
+    this.subToAtom(specEnabledBinding.atom, this.updateSpecPhong);
+    this.subToAtom(specTypeBinding.atom, this.updateSpecType);
+    this.subToAtom(specIntensityBinding.atom, this.updateSpecIntensity);
 
     this.subToAtom(specMapBinding.atom, this.toggleSpecMap);
     this.subToAtom(specMapIntensityBinding.atom, this.updateSpecMapIntensity);
-
-    this.subToAtom(fresnelBinding.atom, this.toggleFresnel);
-    this.subToAtom(fresnelFalloffBinding.atom, this.updateFresnelFalloff);
   };
 
   /* MODEL */
@@ -171,6 +178,10 @@ export class Experience extends WebGLView {
     } else {
       this.setupMesh();
     }
+  };
+
+  private updateModelColor = (value: string) => {
+    this.material.uModelColor = new Color(value);
   };
 
   /* LIGHTING */
@@ -200,15 +211,19 @@ export class Experience extends WebGLView {
   };
 
   private updateSpecPhong = (value: boolean) => {
-    this.material.uSpecPhong = value;
+    this.material.uSpecEnabled = value;
   };
 
-  private updateSpecPhongIntensity = (value: number) => {
-    this.material.uSpecPhongIntensity = value;
+  private updateSpecIntensity = (value: number) => {
+    this.material.uSpecIntensity = value;
   };
 
   private toggleSpecMap = (value: boolean) => {
     this.material.uSpecMapEnabled = value;
+  };
+
+  private updateSpecType = (value: 0 | 1) => {
+    this.material.uSpecType = value;
   };
 
   private updateSpecMapIntensity = (value: number) => {

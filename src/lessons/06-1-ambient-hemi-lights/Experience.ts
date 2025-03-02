@@ -10,11 +10,23 @@ import {
 
 import fragmentShader from './shader.frag.glsl';
 import vertexShader from './shader.vert.glsl';
-import { ambientBinding, assets, hemiBinding } from './State';
+import {
+  ambientBinding,
+  ambientIntensityBinding,
+  assets,
+  hemiBinding,
+  hemiIntensityBinding,
+  lambertBinding,
+  lambertIntensityBinding,
+} from './State';
 
 type Uniforms = {
   uAmbient: boolean;
+  uAmbientIntensity: number;
   uHemisphere: boolean;
+  uHemisphereIntensity: number;
+  uLambert: boolean;
+  uLambertIntensity: number;
   uResolution: Vector2;
 };
 
@@ -70,7 +82,11 @@ export class Experience extends WebGLView {
       uniforms: {
         uResolution: new Vector2(),
         uAmbient: true,
+        uAmbientIntensity: ambientIntensityBinding.get(),
         uHemisphere: true,
+        uHemisphereIntensity: hemiIntensityBinding.get(),
+        uLambert: true,
+        uLambertIntensity: lambertIntensityBinding.get(),
       },
     });
   };
@@ -86,14 +102,36 @@ export class Experience extends WebGLView {
 
   private setupSubscriptions = () => {
     this.subToAtom(ambientBinding.atom, this.updateAmbient);
+    this.subToAtom(ambientIntensityBinding.atom, this.updateAmbientIntensity);
+
     this.subToAtom(hemiBinding.atom, this.updateHemisphere);
+    this.subToAtom(hemiIntensityBinding.atom, this.updateHemisphereIntensity);
+
+    this.subToAtom(lambertBinding.atom, this.updateLambert);
+    this.subToAtom(lambertIntensityBinding.atom, this.updateLambertIntensity);
   };
 
   private updateAmbient = (value: boolean) => {
     this.material.uAmbient = value;
   };
 
+  private updateAmbientIntensity = (value: number) => {
+    this.material.uAmbientIntensity = value;
+  };
+
   private updateHemisphere = (value: boolean) => {
     this.material.uHemisphere = value;
+  };
+
+  private updateHemisphereIntensity = (value: number) => {
+    this.material.uHemisphereIntensity = value;
+  };
+
+  private updateLambert = (value: boolean) => {
+    this.material.uLambert = value;
+  };
+
+  private updateLambertIntensity = (value: number) => {
+    this.material.uLambertIntensity = value;
   };
 }

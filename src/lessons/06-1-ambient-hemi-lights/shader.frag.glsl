@@ -1,5 +1,11 @@
 uniform bool uAmbient;
+uniform float uAmbientIntensity;
+
 uniform bool uHemisphere;
+uniform float uHemisphereIntensity;
+
+uniform bool uLambert;
+uniform float uLambertIntensity;
 
 varying vec3 vNormal;
 
@@ -22,12 +28,22 @@ void main() {
   float hemiMix = remap(normal.y, -1.0, 1.0, 0.0, 1.0);
   vec3 hemiColor = mix(groundColor, skyColor, hemiMix);
 
+  // Lambertian (directional light)
+  vec3 lambertDirection = normalize(vec3(1.0, 1.0, 1.0));
+  vec3 lambertColor = vec3(1.0, 1.0, 0.9);
+  float lambertDot = max(0.0, dot(lambertDirection, normal));
+  vec3 lambert = lambertColor * lambertDot;
+
   if (uAmbient == true) {
-    lighting = ambient;
+    lighting = ambient * uAmbientIntensity;
   }
 
   if (uHemisphere == true) {
-    lighting = lighting + hemiColor;
+    lighting = lighting + hemiColor * uHemisphereIntensity;
+  }
+
+  if (uLambert == true) {
+    lighting = lighting + lambert * uLambertIntensity;
   }
 
   vec3 color = baseColor * lighting;

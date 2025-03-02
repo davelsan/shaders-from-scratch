@@ -24,4 +24,22 @@ const debug = atomWithBinding(state.store, {
 });
 
 export const ambientBinding = debug('Ambient', true);
+export const ambientIntensityBinding = debug('Ambient Intensity', 1.0, {
+  min: 0,
+  max: 1,
+  step: 0.01,
+});
+
 export const hemiBinding = debug('Hemisphere', true);
+export const hemiIntensityBinding = debug('Hemisphere Intensity', 1.0, {
+  min: 0,
+  max: 1,
+  step: 0.01,
+});
+
+export const lambertBinding = debug('Lambert', true);
+export const lambertIntensityBinding = debug('Lambert Intensity', 1.0, {
+  min: 0,
+  max: 1,
+  step: 0.01,
+});

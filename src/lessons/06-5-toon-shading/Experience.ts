@@ -71,7 +71,7 @@ export class Experience extends WebGLView {
     this._camera.aspect = 1920.0 / 1080.0;
     this._camera.near = 0.1;
     this._camera.far = 1000.0;
-    this._camera.position.set(1, 0, 5);
+    this._camera.position.set(1, 0, 3);
 
     this._controls.target.set(0, 0, 0);
     this._controls.update();

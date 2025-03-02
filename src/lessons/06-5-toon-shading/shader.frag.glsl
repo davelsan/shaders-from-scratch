@@ -31,9 +31,12 @@ void main() {
   float lightDotProduct = max(0.0, dot(lightDirection, normal));
 
   // Toon Shading
-  // lightDotProduct *= step(0.5, lightDotProduct);
-  // lightDotProduct *= step(0.5, lightDotProduct); // softer edges
-  lightDotProduct *= smoothstep(0.5, 0.505, lightDotProduct); // even softer edges
+  // lightDotProduct = step(0.5, lightDotProduct); // hard edges
+  // lightDotProduct *= step(0.5, lightDotProduct); // soft edges
+  // lightDotProduct *= smoothstep(0.5, 0.505, lightDotProduct); // softer edges
+  // lightDotProduct *= min(1.0, max(0.0, (step(0.3, lightDotProduct) - 0.5)) + step(0.6, lightDotProduct)); // three-tone
+  // lightDotProduct *= min(1.0, max(0.0, (smoothstep(0.3, 0.31, lightDotProduct) - 0.5)) + smoothstep(0.6, 0.61, lightDotProduct)); // three-tone softer
+  lightDotProduct = mix(0.5, 1.0, step(0.65, lightDotProduct)) * step(0.5, lightDotProduct); // three-tone solution
 
   vec3 lambert = lightColor * lightDotProduct;
 

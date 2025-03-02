@@ -1,4 +1,4 @@
-import { Mesh, PlaneGeometry, SRGBColorSpace, Texture, Vector2 } from 'three';
+import { Mesh, SRGBColorSpace, type Texture, Vector2 } from 'three';
 import { GLTF } from 'three-stdlib';
 
 import {
@@ -23,11 +23,8 @@ const ShaderMaterial = shaderMaterial<Uniforms>();
 
 export class Experience extends WebGLView {
   private material: ShaderMaterial;
-  private geometry: PlaneGeometry;
-  private mesh: Mesh;
-
-  private texture: Texture;
   private model: GLTF;
+  private texture: Texture;
 
   constructor(state: State) {
     super('Vector Operations', state);
@@ -42,8 +39,7 @@ export class Experience extends WebGLView {
 
     void this.dispose(() => {
       this.material.dispose();
-      this.geometry.dispose();
-      this.remove(this.mesh);
+      this.texture.dispose();
     });
   }
 

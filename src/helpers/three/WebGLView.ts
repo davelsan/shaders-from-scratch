@@ -60,8 +60,6 @@ export abstract class WebGLView<T extends object = object> extends Group {
 
   protected _state: State;
 
-  protected _assets: State['assets'];
-
   protected _camera: PerspectiveCamera;
   protected _controls: OrbitControls;
   protected _renderer: WebGLRenderer;
@@ -80,8 +78,6 @@ export abstract class WebGLView<T extends object = object> extends Group {
     super();
     this.namespace = namespace;
     this.props = Object.assign({ needsLoadingScreen: true }, props);
-
-    this._assets = state.assets;
 
     this._vpAtom = state.vpAtom;
     this._timeAtom = state.timeAtom;

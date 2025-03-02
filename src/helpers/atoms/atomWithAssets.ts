@@ -32,9 +32,9 @@ export function atomWithAssets<
   GLTFs extends GLTFAssets,
 >(
   store: Store,
-  ...args: ResourceLoaderParams<CubeTextures, DataTextures, Textures, GLTFs>
+  assets: ResourceLoaderParams<CubeTextures, DataTextures, Textures, GLTFs>
 ) {
-  const resourceLoader = new ResourceLoader(...args);
+  const resourceLoader = new ResourceLoader(assets);
 
   type Cache = {
     cubeTexture: Record<keyof CubeTextures, CubeTexture>;
@@ -51,7 +51,7 @@ export function atomWithAssets<
   } as Cache);
 
   cacheAtom.onMount = () => {
-    const _assets = args[0];
+    const _assets = assets;
     let count = 0;
 
     const cubeTextures = _assets?.cubeTextures;

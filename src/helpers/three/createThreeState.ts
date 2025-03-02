@@ -1,33 +1,12 @@
 import { createStore as JotaiCreateStore } from 'jotai';
 
-import { atomWithAssets, atomWithThree } from '../atoms';
-import {
-  CubeTextureAssets,
-  DataTextureAssets,
-  GLTFAssets,
-  ResourceLoaderParams,
-  TextureAssets,
-} from './ResourceLoader';
+import { atomWithThree } from '../atoms';
 
 export type State = ReturnType<typeof createThreeState>;
 export type Store = ReturnType<typeof JotaiCreateStore>;
 
-export function createThreeState<
-  CubeTextures extends CubeTextureAssets,
-  DataTextures extends DataTextureAssets,
-  Textures extends TextureAssets,
-  GLTFs extends GLTFAssets,
->(
-  ...assetArgs: ResourceLoaderParams<
-    CubeTextures,
-    DataTextures,
-    Textures,
-    GLTFs
-  >
-) {
+export function createThreeState() {
   const store = JotaiCreateStore();
-
-  const assets = atomWithAssets(store, ...assetArgs);
 
   const [
     threeAtom, // camera, controls, renderer, scene, stage
@@ -36,7 +15,6 @@ export function createThreeState<
   ] = atomWithThree('#root', store);
 
   return {
-    assets,
     store,
     threeAtom,
     timeAtom,

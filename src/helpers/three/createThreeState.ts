@@ -1,74 +1,33 @@
-import { Atom, atom, createStore as JotaiCreateStore } from 'jotai';
-import { atomFamily } from 'jotai/utils';
+import { createStore as JotaiCreateStore } from 'jotai';
 
-import { atomWithThree } from '../atoms';
-
-export type SubToAtomArgs<T, R> = [
-  /**
-   * Atom to subscribe.
-   */
-  atom: Atom<T>,
-  /**
-   * Function to execute when the atom state changes.
-   */
-  callback: (value: T) => R,
-  /**
-   * Subscription options.
-   */
-  options?: {
-    /**
-     * Execute the callback when the atom mounts.
-     */
-    callImmediately?: boolean;
-    /**
-     * Execute thec callback only once and unsubscribe.
-     */
-    once?: boolean | ((res: R) => boolean | void);
-  },
-];
+import { atomWithAssets, atomWithThree } from '../atoms';
+import {
+  CubeTextureAssets,
+  DataTextureAssets,
+  GLTFAssets,
+  ResourceLoaderParams,
+  TextureAssets,
+} from './ResourceLoader';
 
 export type State = ReturnType<typeof createThreeState>;
 export type Store = ReturnType<typeof JotaiCreateStore>;
 
-export function createThreeState() {
+export function createThreeState<
+  CubeTextures extends CubeTextureAssets,
+  DataTextures extends DataTextureAssets,
+  Textures extends TextureAssets,
+  GLTFs extends GLTFAssets,
+>(
+  ...assetArgs: ResourceLoaderParams<
+    CubeTextures,
+    DataTextures,
+    Textures,
+    GLTFs
+  >
+) {
   const store = JotaiCreateStore();
 
-  const subsFamily = atomFamily((_namespace: string) =>
-    atom<(() => void)[]>([])
-  );
-
-  function subToAtom<T, R>(namespace: string, ...args: SubToAtomArgs<T, R>) {
-    const [atom, callback, options] = args;
-
-    const once =
-      typeof options?.once === 'function' ? options.once : () => options?.once;
-
-    const listener = () => {
-      const res = callback(store.get(atom));
-      if (once(res)) {
-        unsub();
-      }
-    };
-    const unsub = store.sub(atom, listener);
-
-    const subsAtom = subsFamily(namespace);
-    store.set(subsAtom, (prev) => [...prev, unsub]);
-
-    if (options?.callImmediately) {
-      listener();
-    }
-
-    return () => {
-      store.set(subsAtom, (prev) => prev.filter((sub) => sub !== unsub));
-      unsub();
-    };
-  }
-
-  function unSubAll(namespace: string) {
-    const subsAtom = subsFamily(namespace);
-    store.get(subsAtom).forEach((unsub) => unsub());
-    subsFamily.remove(namespace);
-  }
+  const assets = atomWithAssets(store, ...assetArgs);
 
   const [
     threeAtom, // camera, controls, renderer, scene, stage
@@ -77,12 +36,11 @@ export function createThreeState() {
   ] = atomWithThree('#root', store);
 
   return {
+    assets,
     store,
-    subToAtom,
-    unSubAll,
     threeAtom,
-    vpAtom,
     timeAtom,
+    vpAtom,
     //
     get three() {
       return store.get(threeAtom);

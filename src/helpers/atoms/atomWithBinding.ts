@@ -21,7 +21,7 @@ type AtomWithTweakOptions = BindingParams & {
 const locationAtom = atomWithLocation();
 
 const tweakpaneAtom = atom((get) => {
-  const pane = new Pane({ title: 'Debug Panel' });
+  const pane = new Pane({ title: 'Debug Panel', expanded: false });
   const location = get(locationAtom);
   pane.hidden = location.pathname !== '/debug';
   return pane;

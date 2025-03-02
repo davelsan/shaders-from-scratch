@@ -1,4 +1,10 @@
-import { Mesh, SRGBColorSpace, type Texture, Vector2 } from 'three';
+import {
+  type CubeTexture,
+  IcosahedronGeometry,
+  Mesh,
+  SRGBColorSpace,
+  Vector2,
+} from 'three';
 import { GLTF } from 'three-stdlib';
 
 import {
@@ -14,10 +20,17 @@ import {
   ambientBinding,
   ambientIntensityBinding,
   assets,
+  fresnelBinding,
+  fresnelFalloffBinding,
   hemiBinding,
   hemiIntensityBinding,
   lambertBinding,
   lambertIntensityBinding,
+  modelBinding,
+  specMapBinding,
+  specMapIntensityBinding,
+  specPhongBinding,
+  specPhongIntensityBinding,
 } from './State';
 
 type Uniforms = {
@@ -27,6 +40,14 @@ type Uniforms = {
   uHemisphereIntensity: number;
   uLambert: boolean;
   uLambertIntensity: number;
+  uSpecPhong: boolean;
+  uSpecPhongIntensity: number;
+  uSpecMap: CubeTexture;
+  uSpecMapEnabled: boolean;
+  uSpecMapIntensity: number;
+  uFresnel: boolean;
+  uFresnelFalloff: number;
+  //
   uResolution: Vector2;
 };
 
@@ -35,8 +56,9 @@ const ShaderMaterial = shaderMaterial<Uniforms>();
 
 export class Experience extends WebGLView {
   private material: ShaderMaterial;
+  private mesh: Mesh;
   private model: GLTF;
-  private texture: Texture;
+  private texture: CubeTexture;
 
   constructor(state: State) {
     super('Vector Operations', state);
@@ -44,7 +66,7 @@ export class Experience extends WebGLView {
     void this.init(
       this.setupAssets,
       this.setupMaterial,
-      this.setupModel,
+      modelBinding.get() === 'suzanne' ? this.setupModel : this.setupMesh,
       this.setupScene,
       this.setupSubscriptions
     );
@@ -81,14 +103,27 @@ export class Experience extends WebGLView {
       fragmentShader: fragmentShader,
       uniforms: {
         uResolution: new Vector2(),
-        uAmbient: true,
+        //
+        uAmbient: ambientBinding.get(),
         uAmbientIntensity: ambientIntensityBinding.get(),
-        uHemisphere: true,
+        uHemisphere: hemiBinding.get(),
         uHemisphereIntensity: hemiIntensityBinding.get(),
-        uLambert: true,
+        uLambert: lambertBinding.get(),
         uLambertIntensity: lambertIntensityBinding.get(),
+        uSpecPhong: specPhongBinding.get(),
+        uSpecPhongIntensity: specPhongIntensityBinding.get(),
+        uSpecMap: this.texture,
+        uSpecMapEnabled: specMapBinding.get(),
+        uSpecMapIntensity: specMapIntensityBinding.get(),
+        uFresnel: fresnelBinding.get(),
+        uFresnelFalloff: fresnelFalloffBinding.get(),
       },
     });
+  };
+
+  private setupMesh = () => {
+    this.mesh = new Mesh(new IcosahedronGeometry(1, 128), this.material);
+    this._scene.add(this.mesh);
   };
 
   private setupModel = () => {
@@ -101,6 +136,8 @@ export class Experience extends WebGLView {
   };
 
   private setupSubscriptions = () => {
+    this.subToAtom(modelBinding.atom, this.updateModel);
+
     this.subToAtom(ambientBinding.atom, this.updateAmbient);
     this.subToAtom(ambientIntensityBinding.atom, this.updateAmbientIntensity);
 
@@ -109,7 +146,34 @@ export class Experience extends WebGLView {
 
     this.subToAtom(lambertBinding.atom, this.updateLambert);
     this.subToAtom(lambertIntensityBinding.atom, this.updateLambertIntensity);
+
+    this.subToAtom(specPhongBinding.atom, this.updateSpecPhong);
+    this.subToAtom(
+      specPhongIntensityBinding.atom,
+      this.updateSpecPhongIntensity
+    );
+
+    this.subToAtom(specMapBinding.atom, this.toggleSpecMap);
+    this.subToAtom(specMapIntensityBinding.atom, this.updateSpecMapIntensity);
+
+    this.subToAtom(fresnelBinding.atom, this.toggleFresnel);
+    this.subToAtom(fresnelFalloffBinding.atom, this.updateFresnelFalloff);
   };
+
+  /* MODEL */
+
+  private updateModel = (value: string) => {
+    this._scene.remove(this.model.scene);
+    this._scene.remove(this.mesh);
+
+    if (value === 'suzanne') {
+      this.setupModel();
+    } else {
+      this.setupMesh();
+    }
+  };
+
+  /* LIGHTING */
 
   private updateAmbient = (value: boolean) => {
     this.material.uAmbient = value;
@@ -133,5 +197,29 @@ export class Experience extends WebGLView {
 
   private updateLambertIntensity = (value: number) => {
     this.material.uLambertIntensity = value;
+  };
+
+  private updateSpecPhong = (value: boolean) => {
+    this.material.uSpecPhong = value;
+  };
+
+  private updateSpecPhongIntensity = (value: number) => {
+    this.material.uSpecPhongIntensity = value;
+  };
+
+  private toggleSpecMap = (value: boolean) => {
+    this.material.uSpecMapEnabled = value;
+  };
+
+  private updateSpecMapIntensity = (value: number) => {
+    this.material.uSpecMapIntensity = value;
+  };
+
+  private toggleFresnel = (value: boolean) => {
+    this.material.uFresnel = value;
+  };
+
+  private updateFresnelFalloff = (value: number) => {
+    this.material.uFresnelFalloff = value;
   };
 }

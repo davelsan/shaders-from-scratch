@@ -1,4 +1,4 @@
-import { createExperience } from './lessons/05-1-sin-cos';
+import { createExperience } from './lessons/06-1-ambient-hemi-lights';
 
 import '@helpers/styles/reset.css';
 import '@helpers/styles/webgl.css';

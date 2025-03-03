@@ -1,4 +1,4 @@
-import { createExperience } from './lessons/07-1-simple-transformations';
+import { createExperience } from './lessons/07-3-varyings-in-depth';
 
 import '@helpers/styles/reset.css';
 import '@helpers/styles/webgl.css';

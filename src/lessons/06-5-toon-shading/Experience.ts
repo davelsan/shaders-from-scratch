@@ -1,16 +1,10 @@
-import {
-  type CubeTexture,
-  IcosahedronGeometry,
-  Mesh,
-  SRGBColorSpace,
-  Vector2,
-} from 'three';
+import { type CubeTexture, Mesh, SRGBColorSpace, Vector2 } from 'three';
 import { GLTF } from 'three-stdlib';
 
+import { ThreeState } from '@helpers/atoms';
 import {
   shaderMaterial,
   type ShaderMaterialType,
-  type State,
   WebGLView,
 } from '@helpers/three';
 
@@ -36,11 +30,10 @@ const ShaderMaterial = shaderMaterial<Uniforms>();
 
 export class Experience extends WebGLView {
   private material: ShaderMaterial;
-  private mesh: Mesh;
   private model: GLTF;
   private texture: CubeTexture;
 
-  constructor(state: State) {
+  constructor(state: ThreeState) {
     super('Vector Operations', state);
 
     void this.init(
@@ -62,19 +55,20 @@ export class Experience extends WebGLView {
     this.model = await assets.gltfs.get('suzanne');
   };
 
-  private setupScene = () => {
-    this._renderer.outputColorSpace = SRGBColorSpace;
+  private setupScene = ({ renderer, scene, camera, controls }: ThreeState) => {
+    renderer.outputColorSpace = SRGBColorSpace;
 
-    this._scene.background = this.texture;
+    scene.background = this.texture;
 
-    this._camera.fov = 60;
-    this._camera.aspect = 1920.0 / 1080.0;
-    this._camera.near = 0.1;
-    this._camera.far = 1000.0;
-    this._camera.position.set(1, 0, 3);
+    camera.fov = 60;
+    camera.near = 0.1;
+    camera.far = 1000.0;
+    camera.position.set(1, 0, 3);
 
-    this._controls.target.set(0, 0, 0);
-    this._controls.update();
+    controls.target.set(0, 0, 0);
+    controls.update();
+
+    camera.updateProjectionMatrix();
   };
 
   private setupMaterial = () => {
@@ -91,37 +85,19 @@ export class Experience extends WebGLView {
     });
   };
 
-  private setupMesh = () => {
-    this.mesh = new Mesh(new IcosahedronGeometry(1, 128), this.material);
-    this._scene.add(this.mesh);
-  };
-
-  private setupModel = () => {
+  private setupModel = ({ scene }: ThreeState) => {
     this.model.scene.traverse((child) => {
       if (child instanceof Mesh) {
         child.material = this.material;
       }
     });
-    this._scene.add(this.model.scene);
+    scene.add(this.model.scene);
   };
 
   private setupSubscriptions = () => {
-    this.subToAtom(ambientIntensityBinding.atom, this.updateAmbientIntensity);
-    this.subToAtom(hemiIntensityBinding.atom, this.updateHemisphereIntensity);
-    this.subToAtom(lambertIntensityBinding.atom, this.updateLambertIntensity);
-  };
-
-  /* MODEL */
-
-  private updateModel = (value: string) => {
-    this._scene.remove(this.model.scene);
-    this._scene.remove(this.mesh);
-
-    if (value === 'suzanne') {
-      this.setupModel();
-    } else {
-      this.setupMesh();
-    }
+    ambientIntensityBinding.sub(this.updateAmbientIntensity);
+    hemiIntensityBinding.sub(this.updateHemisphereIntensity);
+    lambertIntensityBinding.sub(this.updateLambertIntensity);
   };
 
   /* LIGHTING */

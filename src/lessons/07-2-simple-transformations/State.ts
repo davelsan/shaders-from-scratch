@@ -1,9 +1,11 @@
-import { atomWithAssets, atomWithBinding } from '@helpers/atoms';
-import { createThreeState } from '@helpers/three';
+import { createStore } from 'jotai';
 
-export const state = createThreeState();
+import { atomWithAssets, atomWithBinding, atomWithThree } from '@helpers/atoms';
 
-export const assets = atomWithAssets(state.store, {
+const store = createStore();
+export const state = atomWithThree('#root', store);
+
+export const assets = atomWithAssets(store, {
   cubeTextures: {
     sunset: [
       'images/Cold_Sunset__Cam_2_Left+X.png',
@@ -18,5 +20,5 @@ export const assets = atomWithAssets(state.store, {
 
 /* MODEL */
 
-const model = atomWithBinding(state.store, { title: 'Model' });
+const model = atomWithBinding(store, { title: 'Model' });
 export const modelColorBinding = model('Color', '#AAAAAA');

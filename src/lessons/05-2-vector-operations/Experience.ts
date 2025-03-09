@@ -1,15 +1,14 @@
 import { Mesh, PlaneGeometry, Vector2 } from 'three';
 
+import { ThreeState } from '@helpers/atoms';
 import {
   shaderMaterial,
   type ShaderMaterialType,
-  type State,
   WebGLView,
 } from '@helpers/three';
 
 import fragmentShader from './shader.frag.glsl';
 import vertexShader from './shader.vert.glsl';
-
 type Uniforms = {
   uResolution: Vector2;
 };
@@ -22,7 +21,7 @@ export class Experience extends WebGLView {
   private geometry: PlaneGeometry;
   private mesh: Mesh;
 
-  constructor(state: State) {
+  constructor(state: ThreeState) {
     super('Vector Operations', state);
 
     void this.init(this.setupGeometry, this.setupMaterial, this.setupMesh);
@@ -33,10 +32,6 @@ export class Experience extends WebGLView {
       this.remove(this.mesh);
     });
   }
-
-  private setupScene = () => {
-    this._camera.position.set(0, 0, 1);
-  };
 
   private setupGeometry = () => {
     this.geometry = new PlaneGeometry(2, 2, 1, 1);

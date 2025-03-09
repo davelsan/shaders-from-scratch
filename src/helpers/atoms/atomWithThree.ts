@@ -1,11 +1,19 @@
+import gsap from 'gsap';
 import { atom } from 'jotai/vanilla';
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { OrbitControls } from 'three-stdlib';
+import { Scene, WebGLRenderer } from 'three';
 
-import { atomWithTime, atomWithViewport } from '@helpers/atoms';
-import type { Store } from '@helpers/three';
+import {
+  type Store,
+  subscribe,
+  type SubscribeToAtomArgs,
+  unsub,
+} from '../jotai';
+import { WebGLView } from '../three';
+import { atomWithCamera } from './atomWithCamera';
+import { atomWithViewport, type ViewportAtomValue } from './atomWithViewport';
+import { atomWithViews, type ViewsAtomValue } from './atomWithViews';
 
-export type AtomWithThree = ReturnType<typeof atomWithThree>;
+export type ThreeState = ReturnType<typeof atomWithThree>;
 
 /**
  * Full experience atom with Three.js. Initializes various atoms to manage the
@@ -14,118 +22,131 @@ export type AtomWithThree = ReturnType<typeof atomWithThree>;
  * @param store Jotai store
  */
 export function atomWithThree(selector: string, store: Store) {
-  const timeAtom = atomWithTime();
-  const vpAtom = atomWithViewport(selector, store);
-
-  const canvas = document.createElement('canvas');
-  canvas.classList.add('webgl');
-
-  const scene = new Scene();
+  const _canvas = document.createElement('canvas');
+  _canvas.classList.add('webgl');
 
   // Camera
-  const camera = new PerspectiveCamera();
-  const controls = new OrbitControls(camera, canvas);
-  controls.enabled = true;
-  controls.enableDamping = true;
+  const cameraAtom = atomWithCamera(_canvas);
+  const { camera: _camera, controls: _controls } = store.get(cameraAtom);
 
   // Renderer
-  const renderer = new WebGLRenderer({
+  const _renderer = new WebGLRenderer({
     powerPreference: 'high-performance',
     antialias: true,
-    canvas,
+    canvas: _canvas,
   });
 
-  // Helpers
-  const updateControls = () => {
-    if (controls.enableDamping || controls.autoRotate) {
-      controls.update();
-    }
-  };
+  // Scene
+  const _scene = new Scene();
 
+  // Viewport
+  const vpAtom = atomWithViewport(selector);
+
+  const viewsAtom = atomWithViews();
+
+  // Helpers
   const updateSizes = () => {
     const { width, height, aspectRatio, pixelRatio } = store.get(vpAtom);
-    camera.aspect = aspectRatio;
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(pixelRatio);
+    _camera.aspect = aspectRatio;
+    _camera.updateProjectionMatrix();
+    _renderer.setSize(width, height);
+    _renderer.setPixelRatio(pixelRatio);
+  };
+
+  const updateScene = () => {
+    if (_controls.enableDamping || _controls.autoRotate) {
+      _controls.update();
+    }
+    _renderer.render(_scene, _camera);
   };
 
   // Three
   const root = store.get(vpAtom).root;
-  const threeAtom = atom({
-    canvas,
-    camera,
-    controls,
-    renderer,
-    scene,
-  });
+  const threeAtom = atom(null);
 
   // Init
   threeAtom.onMount = () => {
-    root.appendChild(canvas);
-
-    const unsubVp = store.sub(vpAtom, updateSizes);
-    updateSizes();
-
-    const unsubTime = store.sub(timeAtom, () => {
-      updateControls();
-      renderer.render(scene, camera);
+    root.appendChild(_canvas);
+    const unsubVp = subscribe(store, vpAtom, updateSizes, {
+      callImmediately: true,
     });
-    updateControls();
-
+    const unsubTime = gsap.ticker.add(updateScene);
     return () => {
-      controls.dispose();
-      renderer.dispose();
+      root.removeChild(_canvas);
+      _controls.dispose();
+      _renderer.dispose();
       unsubTime();
       unsubVp();
     };
   };
 
-  const three = {
-    get atom() {
-      return threeAtom;
-    },
+  return {
+    // Objects
     get camera() {
-      return store.get(threeAtom).camera;
+      return store.get(cameraAtom).camera;
     },
     get controls() {
-      return store.get(threeAtom).controls;
+      return store.get(cameraAtom).controls;
     },
-    get renderer() {
-      return store.get(threeAtom).renderer;
+    renderer: _renderer,
+    scene: _scene,
+    viewport: {
+      get _atom() {
+        return vpAtom;
+      },
+      get width() {
+        return store.get(vpAtom).width;
+      },
+      get height() {
+        return store.get(vpAtom).height;
+      },
+      get aspectRatio() {
+        return store.get(vpAtom).aspectRatio;
+      },
+      get pixelRatio() {
+        return store.get(vpAtom).pixelRatio;
+      },
+      sub(...args: SubscribeToAtomArgs<ViewportAtomValue, void>) {
+        return subscribe(store, vpAtom, ...args);
+      },
     },
-    get scene() {
-      return store.get(threeAtom).scene;
+    three: {
+      mount() {
+        return subscribe(store, threeAtom, () => {});
+      },
     },
-  };
-
-  const viewport = {
-    get atom() {
-      return vpAtom;
+    views: {
+      get _atom() {
+        return viewsAtom;
+      },
+      get(view: string) {
+        return store.get(viewsAtom).find((v) => v.name === view);
+      },
+      add(view: WebGLView) {
+        store.set(viewsAtom, (views) => [
+          ...views,
+          { name: view.namespace, loaded: view.props.isLoaded },
+        ]);
+      },
+      remove(name: string) {
+        store.set(viewsAtom, (views) =>
+          views.filter((view) => view.name !== name)
+        );
+      },
+      setLoaded(name: string) {
+        store.set(viewsAtom, (views) =>
+          views.map((view) =>
+            view.name === name ? { ...view, loaded: true } : view
+          )
+        );
+      },
+      sub(...args: SubscribeToAtomArgs<ViewsAtomValue, void>) {
+        return subscribe(store, viewsAtom, ...args);
+      },
     },
-    get width() {
-      return store.get(vpAtom).width;
+    // Methods
+    unsub(namespace: string) {
+      unsub(store, namespace);
     },
-    get height() {
-      return store.get(vpAtom).height;
-    },
-    get aspectRatio() {
-      return store.get(vpAtom).aspectRatio;
-    },
-    get pixelRatio() {
-      return store.get(vpAtom).pixelRatio;
-    },
-  };
-
-  const time = {
-    get atom() {
-      return timeAtom;
-    },
-  };
-
-  return {
-    three,
-    viewport,
-    time,
   };
 }

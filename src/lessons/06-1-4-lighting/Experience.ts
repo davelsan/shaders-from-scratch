@@ -8,10 +8,10 @@ import {
 } from 'three';
 import { GLTF } from 'three-stdlib';
 
+import { ThreeState } from '@helpers/atoms';
 import {
   shaderMaterial,
   type ShaderMaterialType,
-  type State,
   WebGLView,
 } from '@helpers/three';
 
@@ -65,7 +65,7 @@ export class Experience extends WebGLView {
   private model: GLTF;
   private texture: CubeTexture;
 
-  constructor(state: State) {
+  constructor(state: ThreeState) {
     super('Vector Operations', state);
 
     void this.init(
@@ -87,19 +87,20 @@ export class Experience extends WebGLView {
     this.model = await assets.gltfs.get('suzanne');
   };
 
-  private setupScene = () => {
-    this._renderer.outputColorSpace = SRGBColorSpace;
+  private setupScene = ({ renderer, scene, camera, controls }: ThreeState) => {
+    renderer.outputColorSpace = SRGBColorSpace;
 
-    this._scene.background = this.texture;
+    scene.background = this.texture;
 
-    this._camera.fov = 60;
-    this._camera.aspect = 1920.0 / 1080.0;
-    this._camera.near = 0.1;
-    this._camera.far = 1000.0;
-    this._camera.position.set(1, 0, 5);
+    camera.fov = 60;
+    camera.near = 0.1;
+    camera.far = 1000.0;
+    camera.position.set(1, 0, 5);
 
-    this._controls.target.set(0, 0, 0);
-    this._controls.update();
+    controls.target.set(0, 0, 0);
+    controls.update();
+
+    camera.updateProjectionMatrix();
   };
 
   private setupMaterial = () => {
@@ -128,57 +129,55 @@ export class Experience extends WebGLView {
     });
   };
 
-  private setupMesh = () => {
+  private setupMesh = ({ scene }: ThreeState) => {
     this.mesh = new Mesh(new IcosahedronGeometry(1, 128), this.material);
-    this._scene.add(this.mesh);
+    scene.add(this.mesh);
   };
 
-  private setupModel = () => {
+  private setupModel = ({ scene }: ThreeState) => {
     this.model.scene.traverse((child) => {
       if (child instanceof Mesh) {
         child.material = this.material;
       }
     });
-    this._scene.add(this.model.scene);
+    scene.add(this.model.scene);
   };
 
-  private setupSubscriptions = () => {
-    this.subToAtom(modelBinding.atom, this.updateModel);
+  private setupSubscriptions = (state: ThreeState) => {
+    modelBinding.sub((value) => {
+      state.scene.remove(this.model.scene);
+      state.scene.remove(this.mesh);
 
-    this.subToAtom(ambientBinding.atom, this.updateAmbient);
-    this.subToAtom(ambientIntensityBinding.atom, this.updateAmbientIntensity);
+      if (value === 'suzanne') {
+        this.setupModel(state);
+      } else {
+        this.setupMesh(state);
+      }
+    });
 
-    this.subToAtom(fresnelBinding.atom, this.toggleFresnel);
-    this.subToAtom(fresnelFalloffBinding.atom, this.updateFresnelFalloff);
+    ambientBinding.sub(this.updateAmbient);
+    ambientIntensityBinding.sub(this.updateAmbientIntensity);
 
-    this.subToAtom(hemiBinding.atom, this.updateHemisphere);
-    this.subToAtom(hemiIntensityBinding.atom, this.updateHemisphereIntensity);
+    fresnelBinding.sub(this.toggleFresnel);
+    fresnelFalloffBinding.sub(this.updateFresnelFalloff);
 
-    this.subToAtom(lambertBinding.atom, this.updateLambert);
-    this.subToAtom(lambertIntensityBinding.atom, this.updateLambertIntensity);
+    hemiBinding.sub(this.updateHemisphere);
+    hemiIntensityBinding.sub(this.updateHemisphereIntensity);
 
-    this.subToAtom(modelColorBinding.atom, this.updateModelColor);
+    lambertBinding.sub(this.updateLambert);
+    lambertIntensityBinding.sub(this.updateLambertIntensity);
 
-    this.subToAtom(specEnabledBinding.atom, this.updateSpecPhong);
-    this.subToAtom(specTypeBinding.atom, this.updateSpecType);
-    this.subToAtom(specIntensityBinding.atom, this.updateSpecIntensity);
+    modelColorBinding.sub(this.updateModelColor);
 
-    this.subToAtom(specMapBinding.atom, this.toggleSpecMap);
-    this.subToAtom(specMapIntensityBinding.atom, this.updateSpecMapIntensity);
+    specEnabledBinding.sub(this.updateSpecPhong);
+    specTypeBinding.sub(this.updateSpecType);
+    specIntensityBinding.sub(this.updateSpecIntensity);
+
+    specMapBinding.sub(this.toggleSpecMap);
+    specMapIntensityBinding.sub(this.updateSpecMapIntensity);
   };
 
   /* MODEL */
-
-  private updateModel = (value: string) => {
-    this._scene.remove(this.model.scene);
-    this._scene.remove(this.mesh);
-
-    if (value === 'suzanne') {
-      this.setupModel();
-    } else {
-      this.setupMesh();
-    }
-  };
 
   private updateModelColor = (value: string) => {
     this.material.uModelColor = new Color(value);

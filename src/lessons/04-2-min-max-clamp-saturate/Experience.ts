@@ -1,9 +1,9 @@
 import { Mesh, PlaneGeometry, Vector2 } from 'three';
 
+import { ThreeState } from '@helpers/atoms';
 import {
   shaderMaterial,
   type ShaderMaterialType,
-  type State,
   WebGLView,
 } from '@helpers/three';
 
@@ -22,7 +22,7 @@ export class Experience extends WebGLView {
   private geometry: PlaneGeometry;
   private mesh: Mesh;
 
-  constructor(state: State) {
+  constructor(state: ThreeState) {
     super('Vector Operations', state);
 
     void this.init(this.setupGeometry, this.setupMaterial, this.setupMesh);

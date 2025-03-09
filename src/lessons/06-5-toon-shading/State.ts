@@ -1,9 +1,11 @@
-import { atomWithAssets, atomWithBinding } from '@helpers/atoms';
-import { createThreeState } from '@helpers/three';
+import { createStore } from 'jotai';
 
-export const state = createThreeState();
+import { atomWithAssets, atomWithBinding, atomWithThree } from '@helpers/atoms';
 
-export const assets = atomWithAssets(state.store, {
+const store = createStore();
+export const state = atomWithThree('#root', store);
+
+export const assets = atomWithAssets(store, {
   cubeTextures: {
     sunset: [
       'images/Cold_Sunset__Cam_2_Left+X.png',
@@ -19,21 +21,21 @@ export const assets = atomWithAssets(state.store, {
   },
 });
 
-const ambient = atomWithBinding(state.store, { title: 'Ambient' });
+const ambient = atomWithBinding(store, { title: 'Ambient' });
 export const ambientIntensityBinding = ambient('Intensity', 0.0, {
   min: 0,
   max: 1,
   step: 0.01,
 });
 
-const hemi = atomWithBinding(state.store, { title: 'Hemisphere' });
+const hemi = atomWithBinding(store, { title: 'Hemisphere' });
 export const hemiIntensityBinding = hemi('Intensity', 0.2, {
   min: 0,
   max: 1,
   step: 0.01,
 });
 
-const lambert = atomWithBinding(state.store, { title: 'Lambert' });
+const lambert = atomWithBinding(store, { title: 'Lambert' });
 export const lambertIntensityBinding = lambert('Intensity', 0.8, {
   min: 0,
   max: 1,

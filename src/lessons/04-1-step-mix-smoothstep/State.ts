@@ -1,19 +1,21 @@
-import { atomWithAssets, atomWithBinding } from '@helpers/atoms';
-import { createThreeState } from '@helpers/three';
+import { createStore } from 'jotai';
+
+import { atomWithAssets, atomWithBinding, atomWithThree } from '@helpers/atoms';
 
 import homework1Shader from './homework_1.frag.glsl';
 import homework2Shader from './homework_2.frag.glsl';
 import lessonShader from './shader.frag.glsl';
 
-export const state = createThreeState();
+const store = createStore();
+export const state = atomWithThree('#root', store);
 
-export const assets = atomWithAssets(state.store, {
+export const assets = atomWithAssets(store, {
   textures: {
     plants: 'plants.png',
   },
 });
 
-const debugBinding = atomWithBinding(state.store, {
+const debugBinding = atomWithBinding(store, {
   title: 'Step, Mix, Smoothstep',
 });
 

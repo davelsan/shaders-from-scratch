@@ -1,10 +1,10 @@
+import gsap from 'gsap';
 import { Mesh, PlaneGeometry, Texture } from 'three';
 
-import { TimeAtomValue } from '@helpers/atoms';
+import { ThreeState } from '@helpers/atoms';
 import {
   shaderMaterial,
   type ShaderMaterialType,
-  type State,
   WebGLView,
 } from '@helpers/three';
 
@@ -26,7 +26,7 @@ export class Experience extends WebGLView {
   private mesh: Mesh;
   private texture: Texture;
 
-  constructor(state: State) {
+  constructor(state: ThreeState) {
     super('Vector Operations', state);
 
     void this.init(
@@ -69,10 +69,8 @@ export class Experience extends WebGLView {
   };
 
   private setupSubscriptions = () => {
-    this.subToAtom(this._state.time.atom, this.updateTime);
-  };
-
-  private updateTime = ({ elapsed }: TimeAtomValue) => {
-    this.material.uniforms.uTime.value = elapsed;
+    gsap.ticker.add((time) => {
+      this.material.uniforms.uTime.value = time;
+    });
   };
 }

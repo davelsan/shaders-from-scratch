@@ -1,9 +1,11 @@
-import { atomWithAssets, atomWithBinding } from '@helpers/atoms';
-import { createThreeState } from '@helpers/three';
+import { createStore } from 'jotai';
 
-export const state = createThreeState();
+import { atomWithAssets, atomWithBinding, atomWithThree } from '@helpers/atoms';
 
-export const assets = atomWithAssets(state.store, {
+const store = createStore();
+export const state = atomWithThree('#root', store);
+
+export const assets = atomWithAssets(store, {
   cubeTextures: {
     sunset: [
       'images/Cold_Sunset__Cam_2_Left+X.png',
@@ -21,7 +23,7 @@ export const assets = atomWithAssets(state.store, {
 
 /* MODEL */
 
-const model = atomWithBinding(state.store, { title: 'Model' });
+const model = atomWithBinding(store, { title: 'Model' });
 
 type ModelBindingOptions = 'suzanne' | 'sphere';
 export const modelBinding = model<ModelBindingOptions>('Model', 'suzanne', {
@@ -35,7 +37,7 @@ export const modelColorBinding = model('Color', '#AAAAAA');
 
 /* LIGHTING */
 
-const ambient = atomWithBinding(state.store, { title: 'Ambient' });
+const ambient = atomWithBinding(store, { title: 'Ambient' });
 export const ambientBinding = ambient('Enabled', true);
 export const ambientIntensityBinding = ambient('Intensity', 0.0, {
   min: 0,
@@ -43,7 +45,7 @@ export const ambientIntensityBinding = ambient('Intensity', 0.0, {
   step: 0.01,
 });
 
-const hemi = atomWithBinding(state.store, { title: 'Hemisphere' });
+const hemi = atomWithBinding(store, { title: 'Hemisphere' });
 export const hemiBinding = hemi('Enabled', true);
 export const hemiIntensityBinding = hemi('Intensity', 0.2, {
   min: 0,
@@ -51,7 +53,7 @@ export const hemiIntensityBinding = hemi('Intensity', 0.2, {
   step: 0.01,
 });
 
-const lambert = atomWithBinding(state.store, { title: 'Lambert' });
+const lambert = atomWithBinding(store, { title: 'Lambert' });
 export const lambertBinding = lambert('Enabled', true);
 export const lambertIntensityBinding = lambert('Intensity', 0.8, {
   min: 0,
@@ -59,7 +61,7 @@ export const lambertIntensityBinding = lambert('Intensity', 0.8, {
   step: 0.01,
 });
 
-const specular = atomWithBinding(state.store, { title: 'Specular' });
+const specular = atomWithBinding(store, { title: 'Specular' });
 export const specEnabledBinding = specular('Enabled', true);
 export const specTypeBinding = specular<0 | 1>('Type', 1, {
   options: {
@@ -73,7 +75,7 @@ export const specIntensityBinding = specular('Intensity', 32.0, {
   step: 1.0,
 });
 
-const specMap = atomWithBinding(state.store, { title: 'Specular Map' });
+const specMap = atomWithBinding(store, { title: 'Specular Map' });
 export const specMapBinding = specMap('Enabled', true);
 export const specMapIntensityBinding = specMap('Intensity', 1.0, {
   min: 0.0,
@@ -81,7 +83,7 @@ export const specMapIntensityBinding = specMap('Intensity', 1.0, {
   step: 0.01,
 });
 
-const fresnel = atomWithBinding(state.store, { title: 'Fresnel' });
+const fresnel = atomWithBinding(store, { title: 'Fresnel' });
 export const fresnelBinding = fresnel('Enabled', true);
 export const fresnelFalloffBinding = fresnel('Falloff', 2.0, {
   min: 1.0,

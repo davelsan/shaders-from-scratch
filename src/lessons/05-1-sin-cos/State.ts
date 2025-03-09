@@ -1,9 +1,11 @@
-import { atomWithAssets } from '@helpers/atoms';
-import { createThreeState } from '@helpers/three';
+import { createStore } from 'jotai';
 
-export const state = createThreeState();
+import { atomWithAssets, atomWithThree } from '@helpers/atoms';
 
-export const assets = atomWithAssets(state.store, {
+const store = createStore();
+export const state = atomWithThree('#root', store);
+
+export const assets = atomWithAssets(store, {
   textures: {
     dog: 'dog.jpg',
   },

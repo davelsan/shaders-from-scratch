@@ -1,9 +1,11 @@
-import { atomWithBinding } from '@helpers/atoms';
-import { createThreeState } from '@helpers/three';
+import { createStore } from 'jotai';
 
-export const state = createThreeState();
+import { atomWithBinding, atomWithThree } from '@helpers/atoms';
 
-const debug = atomWithBinding(state.store, {
+const store = createStore();
+export const state = atomWithThree('#root', store);
+
+const debug = atomWithBinding(store, {
   title: 'Debug',
 });
 

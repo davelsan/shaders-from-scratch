@@ -1,3 +1,6 @@
-import { createThreeState } from '@helpers/three';
+import { createStore } from 'jotai';
 
-export const state = createThreeState();
+import { atomWithThree } from '@helpers/atoms';
+
+const store = createStore();
+export const state = atomWithThree('#root', store);

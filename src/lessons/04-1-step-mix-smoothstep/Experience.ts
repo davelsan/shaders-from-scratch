@@ -1,9 +1,9 @@
 import { Mesh, PlaneGeometry, type Texture } from 'three';
 
+import { ThreeState } from '@helpers/atoms';
 import {
   shaderMaterial,
   type ShaderMaterialType,
-  type State,
   WebGLView,
 } from '@helpers/three';
 
@@ -24,7 +24,9 @@ export class Experience extends WebGLView {
   private mesh: Mesh;
   private texture: Texture;
 
-  constructor(state: State) {
+  private shader = fragmentShader;
+
+  constructor(state: ThreeState) {
     super('Vector Operations', state);
 
     void this.init(
@@ -50,10 +52,10 @@ export class Experience extends WebGLView {
     this.geometry = new PlaneGeometry(2, 2, 1, 1);
   };
 
-  private setupMaterial = async (shader = fragmentShader) => {
+  private setupMaterial = async () => {
     this.material = new ShaderMaterial({
       vertexShader: vertexShader,
-      fragmentShader: shader,
+      fragmentShader: this.shader,
       uniforms: {
         uDiffuse: this.texture,
       },
@@ -66,11 +68,12 @@ export class Experience extends WebGLView {
   };
 
   private setupSubscriptions = () => {
-    this.subToAtom(shaderAtom.atom, this.updateShader);
+    shaderAtom.sub(this.updateShader, { namespace: this.namespace });
   };
 
   private updateShader = (shader: string) => {
-    this.setupMaterial(shader);
+    this.shader = shader;
+    this.setupMaterial();
     this.setupMesh();
   };
 }

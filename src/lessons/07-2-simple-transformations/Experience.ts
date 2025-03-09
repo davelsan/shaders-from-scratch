@@ -1,3 +1,4 @@
+import gsap from 'gsap';
 import {
   BoxGeometry,
   Color,
@@ -6,11 +7,10 @@ import {
   SRGBColorSpace,
 } from 'three';
 
-import { TimeAtomValue } from '@helpers/atoms';
+import { ThreeState } from '@helpers/atoms';
 import {
   shaderMaterial,
   type ShaderMaterialType,
-  type State,
   WebGLView,
 } from '@helpers/three';
 
@@ -33,7 +33,7 @@ export class Experience extends WebGLView {
   private mesh: Mesh;
   private texture: CubeTexture;
 
-  constructor(state: State) {
+  constructor(state: ThreeState) {
     super('Vector Operations', state);
 
     void this.init(
@@ -55,19 +55,20 @@ export class Experience extends WebGLView {
     this.texture = await assets.cubeTextures.get('sunset');
   };
 
-  private setupScene = () => {
-    this._renderer.outputColorSpace = SRGBColorSpace;
+  private setupScene = ({ renderer, scene, camera, controls }: ThreeState) => {
+    renderer.outputColorSpace = SRGBColorSpace;
 
-    this._scene.background = this.texture;
+    scene.background = this.texture;
 
-    this._camera.fov = 60;
-    this._camera.aspect = 1920.0 / 1080.0;
-    this._camera.near = 0.1;
-    this._camera.far = 1000.0;
-    this._camera.position.set(1, 0, 5);
+    camera.fov = 60;
+    camera.near = 0.1;
+    camera.far = 1000.0;
+    camera.position.set(1, 0, 5);
 
-    this._controls.target.set(0, 0, 0);
-    this._controls.update();
+    controls.target.set(0, 0, 0);
+    controls.update();
+
+    camera.updateProjectionMatrix();
   };
 
   private setupGeometry = () => {
@@ -86,23 +87,21 @@ export class Experience extends WebGLView {
     });
   };
 
-  private setupMesh = () => {
+  private setupMesh = ({ scene }: ThreeState) => {
     this.mesh = new Mesh(this.geometry, this.material);
-    this._scene.add(this.mesh);
+    scene.add(this.mesh);
   };
 
   private setupSubscriptions = () => {
-    this.subToAtom(modelColorBinding.atom, this.updateModelColor);
-    this.subToAtom(this._timeAtom, this.updateTime);
+    gsap.ticker.add((time) => {
+      this.material.uTime = time;
+    });
+    modelColorBinding.sub(this.updateModelColor);
   };
 
   /* MODEL */
 
   private updateModelColor = (value: string) => {
     this.material.uModelColor = new Color(value);
-  };
-
-  private updateTime = ({ elapsed }: TimeAtomValue) => {
-    this.material.uTime = elapsed;
   };
 }

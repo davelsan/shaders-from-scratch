@@ -2,16 +2,24 @@
 uniform vec3 uModelColor;
 uniform samplerCube uSpecMap;
 
+varying vec3 vColour;
 varying vec3 vNormal;
 varying vec3 vPosition;
 
 #pragma glslify: remap = require('../../shared/remap.glsl');
 
 void main() {
-  vec3 modelColour = vec3(uModelColor);
+  vec3 modelColour = vColour;
   vec3 lighting = vec3(0.0);
 
-  vec3 normal = normalize(vNormal);
+  // vec3 normal = normalize(vNormal);
+  // Approximate modified vertex normals by computing face normals (trick)
+  vec3 normal = normalize(
+    cross(
+      dFdx(vPosition.xyz),
+      dFdy(vPosition.xyz)
+    )
+  );
   vec3 viewDir = normalize(cameraPosition - vPosition);
 
   // Ambient

@@ -21,11 +21,11 @@ float cell_line(float value, float thickness) {
 
 vec3 backgroundGradient() {
   vec2 center = vUvs - 0.5; // [0.0, 1.0] -> [-0.5, 0.5]
-  float distToCenter = length(abs(center)); // [0.0, 0.5] (?)
+  float distToCenter = length(abs(center)); // [0.0, 0.5]
 
   // Vignette effect
   float vignette = 1.0 - distToCenter; // [0.5, 1.0]
-  // Increase white area -> remap [0.5, >=0.7] -> [0.5, 1.0]
+  // Increase white area -> remap [0.0, >=0.7] -> [0.0, 1.0]
   vignette = smoothstep(0.0, 0.7, vignette);
   // Brighten the overall shading -> interpolate [0.0, 1.0] -> [0.3, 1.0]
   vignette = remap(vignette, 0.0, 1.0, 0.3, 1.0);
@@ -57,7 +57,7 @@ void main() {
   vec3 color = vec3(1.0);
 
   // Compute pixel coordinates
-  // - Centered on the screen
+  // - Centered on the screen [-0.5, 0.5]
   // - [-1/2 resolution, +1/2 resolution]
   vec2 pixelCoords = (vUvs - 0.5) * uResolution;
 

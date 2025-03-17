@@ -1,4 +1,4 @@
-import { createExperience } from './lessons/08-4-antialiasing-shading';
+import { createExperience } from './lessons/08-5-boolean-operations';
 
 import '@helpers/styles/reset.css';
 import '@helpers/styles/webgl.css';

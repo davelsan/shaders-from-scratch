@@ -65,26 +65,30 @@ void main() {
   float gridLine_large = gridLine(100.0, 1.5);
 
   // Star: distance of the pixel to a star shape _centered in the screen
+  float starSize = 75.0;
   vec2 starPos = pixelCoords;
   starPos *= rotate2d(uTime * 0.25);
-  float heartDist = sdfStar(starPos, 75.0);
+  float heartDist = sdfStar(starPos, starSize);
 
   // Circles
-  vec2 top = vec2(0.0, -edge.y * 0.5);
-  vec2 left = vec2(edge * 0.4);
-  vec2 right = vec2(-edge.x * 0.4, edge.y * 0.4);
+  vec2 top = vec2(0.0, -starSize * 3.2);
+  vec2 left = vec2(starSize * 3.2, 0.0);
+  vec2 right = vec2(-starSize * 3.2, 0.0);
+  vec2 bottom = vec2(0.0, starSize * 3.2);
 
   float d1 = sdfCircle(pixelCoords + top, 100.0);
   float d2 = sdfCircle(pixelCoords + left, 100.0);
   float d3 = sdfCircle(pixelCoords + right, 100.0);
-  float d = opUnion(opUnion(d1, d2), d3);
+  float d4 = sdfCircle(pixelCoords + bottom, 100.0);
+  float d = opUnion(opUnion(d1, d2), opUnion(d3, d4));
   d = softMin(heartDist, d, 0.05);
+
+  vec3 sdfColor = mix(red, blue, smoothstep(0.0, 1.0, softMinValue(heartDist, d, 0.01)));
+  // vec3 sdfColor = mix(red, blue, smoothstep(0.0, 1.0, smoothstep(heartDist, d, 0.01)));
 
   color = mix(black, color, gradient);
   color = mix(gray, color, gridLine_small);
   color = mix(black, color, gridLine_large);
-
-  vec3 sdfColor = mix(red, blue, smoothstep(0.0, 1.0, softMinValue(heartDist, d, 0.01)));
 
   color = mix(sdfColor * 0.25, color, smoothstep(-1.0, 1.0, d)); // antialias + darker shading
   color = mix(sdfColor, color, smoothstep(-5.0, 0.0, d)); // recolor inner area except 5px border

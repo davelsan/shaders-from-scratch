@@ -1,4 +1,3 @@
-
 uniform vec2 uResolution;
 uniform float uTime;
 
@@ -16,21 +15,11 @@ vec3 yellow = vec3(1.0, 1.0, 0.0);
 #pragma glslify: inverseLerp = require('../../shared/inverse_lerp.glsl');
 #pragma glslify: remap = require('../../shared/remap.glsl');
 #pragma glslify: rotate2d = require('../../shared/rotate2d.glsl');
-#pragma glslify: sdfCircle = require('../../shared/sdf_circle.glsl);
+#pragma glslify: sdfCircle = require('../../shared/sdf_circle.glsl');
 #pragma glslify: sdfStar = require('../../shared/sdf_star.glsl');
 #pragma glslify: vignette = require('../../shared/vignette.glsl', vUvs=vUvs);
 
-float opUnion(float d1, float d2) {
-  return min(d1, d2);
-}
-
-float opSubtraction(float d1, float d2) {
-  return max(-d1, d2);
-}
-
-float opIntersection(float d1, float d2) {
-  return max(d1, d2);
-}
+#pragma glslify: opUnion = require('../../shared/sdf_union.glsl');
 
 float softMax(float a, float b, float k) {
   return log(exp(k * a) + exp(k * b)) / k;

@@ -1,4 +1,4 @@
-import { createExperience } from './lessons/09-4-perlin-simplex';
+import { createExperience } from './lessons/09-3-filtering';
 
 import '@helpers/styles/reset.css';
 import '@helpers/styles/webgl.css';

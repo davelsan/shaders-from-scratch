@@ -1,4 +1,4 @@
-import { createExperience } from './lessons/08-6-clouds';
+import { createExperience } from './lessons/09-3-filtering';
 
 import '@helpers/styles/reset.css';
 import '@helpers/styles/webgl.css';

@@ -25,7 +25,7 @@ export class Experience extends WebGLView {
   private mesh: Mesh;
 
   constructor(state: ThreeState) {
-    super('Vector Operations', state);
+    super('Experience', state);
 
     void this.init(
       this.setupGeometry,

@@ -27,7 +27,7 @@ export class Experience extends WebGLView {
   private shader = fragmentShader;
 
   constructor(state: ThreeState) {
-    super('Vector Operations', state);
+    super('Experience', state);
 
     void this.init(
       this.setupAssets,

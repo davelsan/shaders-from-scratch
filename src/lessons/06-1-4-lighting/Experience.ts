@@ -66,7 +66,7 @@ export class Experience extends WebGLView {
   private texture: CubeTexture;
 
   constructor(state: ThreeState) {
-    super('Vector Operations', state);
+    super('Experience', state);
 
     void this.init(
       this.setupAssets,

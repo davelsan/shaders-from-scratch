@@ -7,6 +7,6 @@ export const state = atomWithThree('#root', store);
 
 export const assets = atomWithAssets(store, {
   textures: {
-    dog: 'dog.jpg',
+    dog: 'textures/dog.jpg',
   },
 });

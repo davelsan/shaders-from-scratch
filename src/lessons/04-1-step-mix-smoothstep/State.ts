@@ -11,7 +11,7 @@ export const state = atomWithThree('#root', store);
 
 export const assets = atomWithAssets(store, {
   textures: {
-    plants: 'plants.png',
+    plants: 'textures/plants.png',
   },
 });
 

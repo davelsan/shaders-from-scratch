@@ -1,4 +1,4 @@
-import { createExperience } from './lessons/09-3-filtering';
+import { createExperience } from './lessons/09-5-more-noises';
 
 import '@helpers/styles/reset.css';
 import '@helpers/styles/webgl.css';

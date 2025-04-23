@@ -29,14 +29,14 @@ export function atomWithThree(
   const { camera, controls } = atomWithCamera(store, _canvas);
 
   // Renderer
-  const _renderer = new WebGLRenderer({
+  const renderer = new WebGLRenderer({
     powerPreference: 'high-performance',
     antialias: true,
     canvas: _canvas,
   });
 
   // Scene
-  const _scene = new Scene();
+  const scene = new Scene();
 
   // Viewport
   const viewport = atomWithViewport(store, selector, options);
@@ -50,51 +50,55 @@ export function atomWithThree(
     );
     camera.aspect = aspectRatio;
     camera.updateProjectionMatrix();
-    _renderer.setSize(width, height);
-    _renderer.setPixelRatio(pixelRatio);
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(pixelRatio);
   };
 
   const updateScene = () => {
     if (controls.enableDamping || controls.autoRotate) {
       controls.update();
     }
-    _renderer.render(_scene, camera);
+    renderer.render(scene, camera);
   };
 
   // Three
-  const root = viewport.root;
-  const threeAtom = atom(null);
+  const _root = viewport.root;
+  const _threeAtom = atom(null);
 
   // Init
-  threeAtom.onMount = () => {
-    root.appendChild(_canvas);
+  _threeAtom.onMount = () => {
+    _root.appendChild(_canvas);
     const unsubVp = viewport.sub(updateSizes, {
       callImmediately: true,
     });
     const unsubTime = gsap.ticker.add(updateScene);
     return () => {
-      root.removeChild(_canvas);
+      _root.removeChild(_canvas);
       controls.dispose();
-      _renderer.dispose();
+      renderer.dispose();
       unsubTime();
       unsubVp();
     };
   };
 
   return {
-    // Objects
     camera,
     controls,
-    renderer: _renderer,
-    scene: _scene,
+    renderer,
+    scene,
     viewport,
-    three: {
-      mount() {
-        return subscribe(store, threeAtom, () => {});
-      },
-    },
     views,
-    // Methods
+    /**
+     * Initialize the Three.js experience. Call the returned function to
+     * unmount the experience.
+     */
+    mount() {
+      return subscribe(store, _threeAtom, () => {});
+    },
+    /**
+     * Unsubscribe a namespaced view from all listeners.
+     * @param namespace namespace of the experience
+     */
     unsub(namespace: string) {
       unsub(store, namespace);
     },

@@ -34,6 +34,7 @@ export class Experience extends WebGLView {
     super('Experience', state);
 
     void this.init(
+      this.setupScene,
       this.setupGeometry,
       this.setupMaterial,
       this.setupMesh,
@@ -44,6 +45,10 @@ export class Experience extends WebGLView {
       this.material.dispose();
     });
   }
+
+  private setupScene = ({ viewport }: ThreeState) => {
+    viewport.maxPixelRatio = 1;
+  };
 
   private setupGeometry = () => {
     this.geometry = new PlaneGeometry(2, 2, 1, 1);

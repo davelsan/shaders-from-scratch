@@ -77,10 +77,6 @@ void main() {
   vec3 color = drawSky();
 
   // Mountains
-  // Move them upwards (reverse coord sign in SDFs)
-  // vec2 mountainCoords = (pixelCoords - vec2(0.0, uResolution.y * 0.3)) * 8.0; // increase frequency
-  // color = drawMountains(color, vec3(0.5), mountainCoords);
-
   float timeOffset = uTime * 20.0;
 
   color = drawMountains(pixelCoords, 300.0, timeOffset, 8.0, color, vec3(0.5), 6000.0);

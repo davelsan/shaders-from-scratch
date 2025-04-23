@@ -39,6 +39,7 @@ const tweakpaneFolderFamily = atomFamily(
   (folderParams: FolderParams) =>
     atom<FolderApi>((get) => {
       const pane = get(tweakpaneAtom);
+      pane.expanded = Boolean(folderParams.expanded);
       return pane.addFolder(folderParams);
     }),
   (a, b) => a.title === b.title

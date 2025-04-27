@@ -1,4 +1,4 @@
-import { createExperience } from './lessons/09-6-project-landscape';
+import { createExperience } from './lessons/09-7-burn-transition';
 
 import '@helpers/styles/reset.css';
 import '@helpers/styles/webgl.css';

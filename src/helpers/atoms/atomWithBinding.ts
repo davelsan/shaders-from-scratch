@@ -5,11 +5,7 @@ import { FolderApi, Pane } from 'tweakpane';
 import { PaneConfig } from 'tweakpane/dist/types/pane/pane-config';
 import type { BindingParams, FolderParams } from '@tweakpane/core';
 
-import {
-  type Store,
-  subscribe,
-  type SubscribeToAtomArgs,
-} from '@helpers/jotai';
+import { type Store, subscribe, type SubscribeToAtomArgs } from '../jotai';
 
 interface PaneOptions extends Pick<PaneConfig, 'expanded' | 'title'> {
   type: 'root';
